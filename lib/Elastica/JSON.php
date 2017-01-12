@@ -60,7 +60,7 @@ class JSON
         $args = func_get_args();
 
         // run encode and output
-        $string = call_user_func_array('json_encode', $args);
+        $string = call_user_func_array('json_encode', self::array_utf8_encode($args));
 
         // turn errors into exceptions for easier catching
         if ($error = self::getJsonLastErrorMsg()) {
@@ -83,5 +83,17 @@ class JSON
     private static function getJsonLastErrorMsg()
     {
         return JSON_ERROR_NONE !== json_last_error() ? json_last_error_msg() : false;
+    }
+    
+    public static function array_utf8_encode($dat)
+    {
+        if (is_string($dat))
+            return utf8_encode($dat);
+        if (!is_array($dat))
+            return $dat;
+        $ret = array();
+        foreach ($dat as $i => $d)
+            $ret[$i] = self::array_utf8_encode($d);
+        return $ret;
     }
 }
